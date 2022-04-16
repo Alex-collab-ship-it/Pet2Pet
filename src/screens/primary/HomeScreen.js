@@ -53,7 +53,7 @@ export const HomeScreen = ({ navigation, route }) => {
             const direction = Math.sign(dx)
             const isActionActive = Math.abs(dx) > 100
             if (isActionActive) {
-                await sendChoice(data.userToken, pets[0].owner, direction === 1 ? "L" : "D")
+                await sendChoice(token, pets[0].owner, direction === 1 ? "L" : "D")
                 Animated.timing(swipe, {
                     duration: 200,
                     toValue: {
@@ -81,7 +81,7 @@ export const HomeScreen = ({ navigation, route }) => {
     }, [swipe])
 
     const handleChoice = useCallback((direction) => {
-        sendChoice(data.userToken, pets[0].owner, direction === 1 ? "L" : "D")
+        sendChoice(token, pets[0].owner, direction === 1 ? "L" : "D")
         Animated.timing(swipe.x,{
             toValue: direction * THEME.WIDTH * 1.5,
             duration: 400,
