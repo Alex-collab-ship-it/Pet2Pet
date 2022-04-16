@@ -36,11 +36,3 @@ export const setTheme = (value) => async dispatch => {
 }
 
 
-export const getPets = () => async dispatch => {
-    // await SecureStore.setItemAsync('theme', value);
-    // dispatch({
-    //     type: SET_THEME,
-    //     payload: value
-    // })
-}
-

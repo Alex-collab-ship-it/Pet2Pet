@@ -104,7 +104,7 @@ export const HomeScreen = ({ navigation, route }) => {
                                 swipe={swipe}
                                 key={index}
                                 isFirst={isF}
-                                token={data.userToken}
+                                token={token}
                                 {...dragHandlers}
                                 />
                         )

@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, FlatList } fro
 
 export const LikesScreen = ({ navigation, route }) => {
     const { token } = route.params
-    console.log(token)
     const [data, setdata] = useState(false)
     const { colors } = useTheme()
 
