@@ -1,25 +1,28 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigationContainer, useTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator, CardStyleInterpolators, TransitionSpecs, TransitionPresets  } from '@react-navigation/stack';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import AppLoading from 'expo-app-loading';
 
 import { AuthScreen } from '../screens/auth/AuthScreen';
 import { HomeScreen } from '../screens/primary/HomeScreen';
 import { SignInScreen } from '../screens/auth/SignInScreen';
 import { SignUpScreen } from '../screens/auth/SignUpScreen';
-import { loadStatus } from '../store/actions/dataActions';
+import { getAuth } from '../store/actions/dataActions';
 import { useDispatch, useSelector } from 'react-redux';
-import AppLoading from 'expo-app-loading';
 import { ConfirmMailScreen } from '../screens/auth/ConfrimMailScreen';
 import { AccountScreen } from '../screens/primary/AccountScreen';
 import { LikesScreen } from '../screens/primary/LikesScreen';
+import { CreatePetScreen } from '../screens/primary/CreatePetScreen';
+import ImageBrowserScreen from '../screens/primary/ImageBrowserScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function BottomNavigation() {
 
+
+function BottomNavigation({ route }) {
   const { colors } = useTheme()
 
   return (
@@ -31,22 +34,23 @@ function BottomNavigation() {
         fontSize: 12,
         fontFamily: 'InterRegular'
       },
-      tabBarItemStyle: {
-        marginVertical: 5
-      },
       tabBarStyle: {
-        height: 60
+        alignItems: 'space-between'
       }
     }}>
-      <Tab.Screen name="Account" component={AccountScr} options={{
+      <Tab.Screen name="Account" component={AccountScr} initialParams={route.params}
+        options={{
         title: 'Аккаунт',
         tabBarIcon: ({ focused, color, size }) =>  <MaterialCommunityIcons name="account-circle-outline" size={28} color={focused ? colors.primary : colors.light_gray} />
       }}/>
-      <Tab.Screen name="Home" component={HomeScr} options={{
+      <Tab.Screen name="Home"
+        initialParams={route.params}
+        component={HomeScr}
+        options={{
         title: 'Главная',
         tabBarIcon: ({ focused, color, size }) => <MaterialIcons name="pets" size={28} color={focused ? colors.primary : colors.light_gray} />
       }}/>
-      <Tab.Screen name="Likes" component={LikesScr} options={{
+      <Tab.Screen name="Likes" component={LikesScr} initialParams={route.params} options={{
         title: 'Симпатии',
         tabBarIcon: ({ focused, color, size }) => <MaterialCommunityIcons name="heart-multiple-outline" size={28} color={focused ? colors.primary : colors.light_gray} />
       }}/>
@@ -56,22 +60,28 @@ function BottomNavigation() {
 
 export const AppNavigation = () => {
   const dispatch = useDispatch()
+
   useEffect(() => {
-    dispatch(loadStatus('token'))
+    dispatch(getAuth('token'))
   }, [dispatch])
 
   const data = useSelector(state => state.data)
+
+  
   if (data.loading) {
     return <AppLoading />
   }
 
 
   return (
-    <NavigationContainer theme={theme}>
+    <NavigationContainer theme={theme} >
       <Stack.Navigator
         screenOptions={{ headerShadowVisible: false, headerShown: false }}>
           {data.isSigned ? (
-            <Stack.Screen name='Main' component={BottomNavigation} />
+            <Stack.Group>
+                <Stack.Screen name='Main' component={BottomNavigation} initialParams={{ token: data.userToken }} />
+                <Stack.Screen name='CreatePetModal' options={{ presentation: 'modal' }} component={CreatePetScr} />
+            </Stack.Group>
           ) :  (
             <Stack.Group screenOptions={{
               gestureEnabled: true,
@@ -83,27 +93,34 @@ export const AppNavigation = () => {
               <Stack.Screen name='SignIn' component={SignIn} />
             </Stack.Group>
           )}
+          <Stack.Screen name='ImageBrowser' component={ImageBrowserScreen} options={{ title: 'Выбрано 0', headerShown: true }} />
       </Stack.Navigator>
     </NavigationContainer>
   )
 }
 
 
-function HomeScr({ navigation }) {
+function HomeScr({ navigation, route }) {
   return (
-    <HomeScreen />
+    <HomeScreen navigation={navigation} route={route} />
   )
 }
 
-function AccountScr({ navigation }) {
+function AccountScr({ navigation, route }) {
   return (
-    <AccountScreen />
+    <AccountScreen navigation={navigation} route={route} />
   )
 }
 
-function LikesScr({ navigation }) {
+function LikesScr({ navigation, route }) {
   return (
-    <LikesScreen />
+    <LikesScreen navigation={navigation} route={route} />
+  )
+}
+
+function CreatePetScr({ navigation, route = { params: { closable: false } } }) {
+  return (
+    <CreatePetScreen navigation={navigation} route={route} />
   )
 }
 
@@ -131,15 +148,19 @@ function ConfirmMail({ navigation, route }) {
   )
 }
 
+
+
+
 const theme = {
   dark: false,
   colors: {
     primary: '#0fad89',
-    background: 'rgb(242, 242, 242)',
-    card: 'rgb(255, 255, 255)',
+    background: '#F9F9FF',
+    card: '#FDF5E6',
     text: 'rgb(28, 28, 30)',
-    border: 'rgb(199, 199, 204)',
     notification: 'rgb(255, 69, 58)',
-    light_gray: '#ccc' 
+    border: 'rgb(199, 199, 204)',
+    light_gray: '#ccc' ,
+    red: '#D83C73'
   },
 };

@@ -1,4 +1,4 @@
-import { LOAD_STATUS, LOGOUT, SET_THEME, SIGN_UP } from "../types"
+import { LOAD_STATUS, REG_2, SET_THEME, SET_AUTH } from "../types"
 
 const initialState = {
     loading: true,
@@ -13,13 +13,7 @@ export const dataReducer = (state = initialState, action) => {
                 ...action.payload,
                 loading: false
             }
-        case SIGN_UP: 
-            return {
-                ...state, 
-                ...action.payload,
-                loading: false
-            }
-        case LOGOUT: 
+        case SET_AUTH: 
             return {
                 ...state, 
                 ...action.payload,
@@ -29,6 +23,11 @@ export const dataReducer = (state = initialState, action) => {
             return {
                 ...state,
                 theme: action.payload,
+                loading: false
+            }
+        case REG_2:
+            return {
+                ...state,
                 loading: false
             }
         default:

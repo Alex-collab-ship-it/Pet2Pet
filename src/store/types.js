@@ -1,4 +1,6 @@
 export const LOAD_STATUS = 'LOAD_STATUS'
-export const LOGOUT = 'LOGOUT'
-export const SIGN_UP = 'SIGN_UP'
+export const SET_AUTH = 'SET_AUTH'
 export const SET_THEME = 'SET_THEME'
+export const REG_1 = 'REG_1'
+export const REG_2 = 'REG_2'
+export const AUTH_CHECK = 'AUTH_CHECK'

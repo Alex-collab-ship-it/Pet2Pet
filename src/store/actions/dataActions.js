@@ -1,30 +1,31 @@
-import { LOAD_STATUS, LOGOUT, SET_THEME, SIGN_UP } from "../types"
+import { LOAD_STATUS, SET_THEME, SET_AUTH } from "../types"
 import * as SecureStore from 'expo-secure-store';
 
 
-export const loadStatus = (key) => async dispatch => {
-    const data = await SecureStore.getItemAsync(key);
-    const result = {
-        userToken: data,
-        isSigned: data === null || data === '' ? false : true
-    }
+
+export const getAuth = () => async dispatch => {
+    const user = await SecureStore.getItemAsync('token');
     dispatch({
         type: LOAD_STATUS,
-        payload: result
+        payload: {
+            userToken: user,
+            isSigned: user === null || user === '' ? false : true
+        }
     })
 }
 
-export const setAuth = (key, value) => async dispatch => {
-    await SecureStore.setItemAsync(key, value);
-    const result = {
-        userToken: value,
-        isSigned: value === null || value === '' ? false : true
-    }
+export const setAuth = (value) => async dispatch => {
+    await SecureStore.setItemAsync('token', value)
     dispatch({
-        type: value === '' ? LOGOUT : SIGN_UP,
-        payload: result
+        type: SET_AUTH,
+        payload: {
+            userToken: value,
+            isSigned: value === '' || value === null ? false : true
+        }
     })
 }
+
+
 
 export const setTheme = (value) => async dispatch => {
     await SecureStore.setItemAsync('theme', value);
@@ -32,5 +33,14 @@ export const setTheme = (value) => async dispatch => {
         type: SET_THEME,
         payload: value
     })
+}
+
+
+export const getPets = () => async dispatch => {
+    // await SecureStore.setItemAsync('theme', value);
+    // dispatch({
+    //     type: SET_THEME,
+    //     payload: value
+    // })
 }
 

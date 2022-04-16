@@ -4,47 +4,32 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { AppButton } from '../../components/AppButton'
 import { useDispatch } from 'react-redux';
-import { setAuth } from '../../store/actions/dataActions';
+
 import { useTheme } from '@react-navigation/native';
+import { regStage2 } from '../../ServerRequests';
+import { setAuth } from '../../store/actions/dataActions';
 
-
-var sha1 = require('sha1');
 
 export const ConfirmMailScreen = ({ navigation, route }) => {
     const { colors } = useTheme()
     const [code, setCode] = useState('')
+    const [isChecking, setIsChecking] = useState(false)
     const { mail, name, pass } = route.params
 
     const dispatch = useDispatch()
     const confirmHandler = async () => {
-        await fetch('https://pancake69.xyz/Registration/Stage2',
-        {
-            method: 'POST',
-            headers: {
-                'Accept': 'text/plain',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                email: mail,
-                password: sha1(pass), 
-                code: code
-            })
-        }).then((response) => {
-            if (!response.ok) {
-                return Promise.reject(new Error(
-                    'Response failed: ' + response.status + ' (' + response.text() + ')'
-                ));
-            }
-            return response.text();
-        }).then(data => {
-            if (data.length > 58) {
-                dispatch(setAuth('token', data))
-            } else if (data === '0') {
-                alert('Неверный код подверждения!')
-            }
+        setIsChecking(true)
+        const result = await regStage2(name, mail, pass, code)
+        setIsChecking(false)
+        if (result !== '0'){
+            dispatch(setAuth(result))
+        } else {
+            alert('Неверный код подтверждения!')
+        }
+    }
 
-        }).catch(error => console.log(error))
+    if (isChecking) {
+        return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator size="large" color={colors.primary} /></View>
     }
 
     return (

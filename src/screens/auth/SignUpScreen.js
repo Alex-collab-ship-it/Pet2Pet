@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, StyleSheet, Text, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, StyleSheet, Text, TextInput, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@react-navigation/native';
 
 import { AppButton } from '../../components/AppButton';
+import { regStage1 } from '../../ServerRequests';
 
 export const SignUpScreen = ({ navigation, route }) => {
 
@@ -12,28 +13,17 @@ export const SignUpScreen = ({ navigation, route }) => {
     const { mail } = route.params
     const [pass, setPass] = useState('')
     const [name, setName] = useState('')
-
+    const [isChecking, setIsChecking] = useState(false)
 
     const handler = async () => {
-        await fetch('https://pancake69.xyz/Registration/Stage1',
-        {
-            method: 'POST',
-            headers: {
-                'Accept': 'text/plain',
-                'Content-Type': 'application/json',
-            },
-            body: "\"" + mail + "\""
-        }).then((response) => {
-            if (!response.ok) {
-                return Promise.reject(new Error(
-                    'Response failed: ' + response.status + ' (' + response.statusText + ')'
-                ));
-            }
-            return response.text();
-        }).catch((error) => {
-            console.log(error)
-        });
+        setIsChecking(true)
+        await regStage1(mail)
+        setIsChecking(false)
         navigation.navigate('ConfirmMail', { name: name, mail: mail, pass: pass })
+    }
+
+    if (isChecking) {
+        return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator size="large" color={colors.primary} /></View>
     }
 
     return (
