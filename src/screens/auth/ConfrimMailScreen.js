@@ -22,7 +22,7 @@ export const ConfirmMailScreen = ({ navigation, route }) => {
         const result = await regStage2(name, mail, pass, code)
         setIsChecking(false)
         if (result !== '0'){
-            dispatch(setAuth(result))
+            dispatch(setAuth(result, mail))
         } else {
             alert('Неверный код подтверждения!')
         }

@@ -21,7 +21,7 @@ export const SignInScreen = ({ navigation, route }) => {
         const result = await SignIn(mail, pass)
         setIsChecking(false)
         if (result !== '0') {
-            dispatch(setAuth(result))
+            dispatch(setAuth(result, mail))
         } else {
             alert('Неверныый пароль')
         } 

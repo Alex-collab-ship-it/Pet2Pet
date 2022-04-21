@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavigationContainer, useTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator, CardStyleInterpolators, TransitionSpecs, TransitionPresets  } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import AppLoading from 'expo-app-loading';
 
@@ -9,13 +9,14 @@ import { AuthScreen } from '../screens/auth/AuthScreen';
 import { HomeScreen } from '../screens/primary/HomeScreen';
 import { SignInScreen } from '../screens/auth/SignInScreen';
 import { SignUpScreen } from '../screens/auth/SignUpScreen';
-import { getAuth } from '../store/actions/dataActions';
+import { getAuth, loadAllChats } from '../store/actions/dataActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ConfirmMailScreen } from '../screens/auth/ConfrimMailScreen';
 import { AccountScreen } from '../screens/primary/AccountScreen';
 import { LikesScreen } from '../screens/primary/LikesScreen';
 import { CreatePetScreen } from '../screens/primary/CreatePetScreen';
 import ImageBrowserScreen from '../screens/primary/ImageBrowserScreen';
+import { ChatScreen } from '../screens/primary/ChatScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,7 +25,11 @@ const Tab = createBottomTabNavigator();
 
 function BottomNavigation({ route }) {
   const { colors } = useTheme()
+  const dispatch = useDispatch()
 
+  useEffect(() => {
+    dispatch(loadAllChats(route.params.token))
+  }, [])
   return (
     <Tab.Navigator initialRouteName='Home' screenOptions={{
       tabBarHideOnKeyboard: true,
@@ -62,7 +67,7 @@ export const AppNavigation = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(getAuth('token'))
+    dispatch(getAuth())
   }, [dispatch])
 
   const data = useSelector(state => state.data)
@@ -73,14 +78,20 @@ export const AppNavigation = () => {
   }
 
 
+
   return (
     <NavigationContainer theme={theme} >
       <Stack.Navigator
         screenOptions={{ headerShadowVisible: false, headerShown: false }}>
           {data.isSigned ? (
             <Stack.Group>
-                <Stack.Screen name='Main' component={BottomNavigation} initialParams={{ token: data.userToken }} />
-                <Stack.Screen name='CreatePetModal' options={{ presentation: 'modal' }} component={CreatePetScr} />
+                <Stack.Screen name='Main' component={BottomNavigation} initialParams={{ token: data.userToken, mail: data.userMail }} />
+                <Stack.Screen name='CreatePetModal' options={{ presentation: 'modal' }} component={CreatePetScr} initialParams={{ token: data.userToken }} />
+                <Stack.Screen name='Chat' component={ChatScr} initialParams={{ token: data.userToken, mail: data.userMail }}
+                  options={{
+                    gestureEnabled: true,
+                    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+                  }} />
             </Stack.Group>
           ) :  (
             <Stack.Group screenOptions={{
@@ -93,11 +104,12 @@ export const AppNavigation = () => {
               <Stack.Screen name='SignIn' component={SignIn} />
             </Stack.Group>
           )}
-          <Stack.Screen name='ImageBrowser' component={ImageBrowserScreen} options={{ title: 'Выбрано 0', headerShown: true }} />
+          <Stack.Screen name='ImageBrowser' component={ImageBrowserScreen} initialParams={{ token: data.userToken }} options={{ title: 'Выбрано 0', headerShown: true }} />
       </Stack.Navigator>
     </NavigationContainer>
   )
 }
+
 
 
 function HomeScr({ navigation, route }) {
@@ -121,6 +133,12 @@ function LikesScr({ navigation, route }) {
 function CreatePetScr({ navigation, route = { params: { closable: false } } }) {
   return (
     <CreatePetScreen navigation={navigation} route={route} />
+  )
+}
+
+function ChatScr({ navigation, route }) {
+  return (
+    <ChatScreen navigation={navigation} route={route} />
   )
 }
 

@@ -96,11 +96,10 @@ export const SignIn = async (mail, pass) => {
     return result
 }
 
-export const AddPet = (name, breed, age, photos, token, info, man, cat) => {
+export const AddPet = (name, breed, age, photos, token, info, man, cat, coord) => {
     var myHeaders = new Headers();
     myHeaders.append("accept", "text/plain");
     var formdata = new FormData();
-
     formdata.append("ExInfo", info);
     formdata.append("Sex", man ? "M" : "F");
     formdata.append("Name", name);
@@ -117,7 +116,7 @@ export const AddPet = (name, breed, age, photos, token, info, man, cat) => {
     formdata.append("Token", token);
     formdata.append("Type", cat ? "Cat" : "Dog");
     formdata.append("Age", onlyDigits(age));
-
+    formdata.append("Coord", coord.latitude + ',' + coord.longitude);
     var requestOptions = {
         method: 'POST',
         headers: myHeaders,
@@ -201,4 +200,29 @@ export const sendChoice = (token, owner, choice) => {
 
     }).then(data => console.log(data)
     ).catch(e => console.log(e))
+}
+
+export const sendMessage = (token, toUser, msg) => {
+    const result = fetch('https://pancake69.xyz/Messenger/SendTextMessage', {
+        method: 'POST',
+        headers: {
+            'Accept': 'text/plain',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            token: token,
+            toUser: toUser,
+            content: msg
+          })
+    }).then((response) => {
+        if (!response.ok) {
+            return Promise.reject(new Error(
+                'Response failed: ' + response.status + ' (' + response.text() + ')'
+            ));
+        }
+        return response.text()
+
+    }).then(data => data
+    ).catch(e => console.log(e))
+    return result
 }

@@ -1,28 +1,67 @@
-import { LOAD_STATUS, SET_THEME, SET_AUTH } from "../types"
+import { LOAD_STATUS, SET_THEME, SET_AUTH, LOAD_NEW_CHATS } from "../types"
 import * as SecureStore from 'expo-secure-store';
+import { DB } from "../../db";
 
 
 
 export const getAuth = () => async dispatch => {
-    const user = await SecureStore.getItemAsync('token');
+    const token = await SecureStore.getItemAsync('token');
+    const mail = await SecureStore.getItemAsync('mail');
     dispatch({
         type: LOAD_STATUS,
         payload: {
-            userToken: user,
-            isSigned: user === null || user === '' ? false : true
+            userMail: mail,
+            userToken: token,
+            isSigned: token === null || token === '' ? false : true
         }
     })
 }
 
-export const setAuth = (value) => async dispatch => {
-    await SecureStore.setItemAsync('token', value)
+export const setAuth = (token, mail) => async dispatch => {
+    await SecureStore.setItemAsync('token', token)
+    await SecureStore.setItemAsync('mail', mail)
     dispatch({
         type: SET_AUTH,
         payload: {
-            userToken: value,
-            isSigned: value === '' || value === null ? false : true
+            userMail: mail,
+            userToken: token,
+            isSigned: token === '' || token === null ? false : true
         }
     })
+}
+
+export const loadAllChats = (token) => async dispatch => {
+    while (true) {
+        await fetch('https://pancake69.xyz/Messenger/GetNewMessages',{
+            method: 'POST',
+            headers:{
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+            },
+            body: "\"" + token + "\""
+        }).then((response) => {
+            if (!response.ok) {
+                return Promise.reject(new Error(
+                    'Response failed: ' + response.status + ' (' + response.text() + ')'
+                ));
+            }
+            return response.json()
+        }
+        ).then(data => {
+            if (data.length>0) {
+                data.forEach(msg => {
+                    if (msg.type === "Text") {
+                        DB.addMsgText(msg.toUser, msg.fromUser, msg.content, msg.dataStatus)
+                    }
+                });
+                dispatch({
+                    type: LOAD_NEW_CHATS,
+                    payload: data
+                })
+            }
+        })
+        await wait(200)
+    }
 }
 
 
@@ -36,3 +75,6 @@ export const setTheme = (value) => async dispatch => {
 }
 
 
+const wait = timeout => {
+    return new Promise(resolve => {setTimeout(resolve, timeout)});
+  }

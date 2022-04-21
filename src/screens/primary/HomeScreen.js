@@ -55,7 +55,7 @@ export const HomeScreen = ({ navigation, route }) => {
             if (isActionActive) {
                 await sendChoice(token, pets[0].owner, direction === 1 ? "L" : "D")
                 Animated.timing(swipe, {
-                    duration: 200,
+                    duration: 300,
                     toValue: {
                         x: direction * 500,
                         y: dy,  
@@ -84,7 +84,7 @@ export const HomeScreen = ({ navigation, route }) => {
         sendChoice(token, pets[0].owner, direction === 1 ? "L" : "D")
         Animated.timing(swipe.x,{
             toValue: direction * THEME.WIDTH * 1.5,
-            duration: 400,
+            duration: 300,
             useNativeDriver: true
         }).start(removeTopCard)
     }, [removeTopCard, swipe.x])

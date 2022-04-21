@@ -1,6 +1,5 @@
 export const LOAD_STATUS = 'LOAD_STATUS'
 export const SET_AUTH = 'SET_AUTH'
 export const SET_THEME = 'SET_THEME'
-export const REG_1 = 'REG_1'
-export const REG_2 = 'REG_2'
-export const AUTH_CHECK = 'AUTH_CHECK'
+export const LOAD_NEW_CHATS = 'LOAD_NEW_CHATS'
+export const CLEAR_NEW_CHATS = 'CLEAR_NEW_CHATS'

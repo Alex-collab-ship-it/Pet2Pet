@@ -3,35 +3,38 @@ import { View, StyleSheet, Text, TextInput, ScrollView, Image, TouchableWithoutF
 import ModalSelector from 'react-native-modal-selector-searchable'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import * as Location from 'expo-location';
 
 import { AppButton } from '../../components/AppButton';
 import { Separator } from '../../components/Separator';
 import { THEME } from '../../theme';
-import { getAuth } from '../../store/actions/dataActions';
 import { AddPet } from '../../ServerRequests';
-
 
 
 export const CreatePetScreen = ({ navigation, route }) => {
 
-    const { photos, closable } = route.params
-
+    const { photos, closable, token } = route.params
+    const [location, setLocation] = useState(null);
+    const askForPermissions = async () => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+              alert('Permission to access location was denied');
+              return;
+            }
+      
+            let { coords } = await Location.getCurrentPositionAsync({});
+            setLocation(coords);
+          })()
+    }
     
-
-    const dispatch = useDispatch()
-    useEffect(() => {
-        dispatch(getAuth())
-    }, [dispatch])
-
-    const data = useSelector(state => state.data)
-
     const sendHandler = async () => { 
-        if (name === '' || breed === '' || age === '' || photos.length === 0 || data.userToken === '') {
+        askForPermissions()
+        if (name === '' || breed === '' || age === '' || photos.length === 0 || token === '' || location === null) {
             alert('Зополните все поля')
             return
         }
-        const result = await AddPet(name, breed, age, photos, data.userToken, info, man, cat)
+        const result = await AddPet(name, breed, age, photos, token, info, man, cat, location)
         if (result === '1') {
             navigation.goBack()
         }
@@ -45,8 +48,18 @@ export const CreatePetScreen = ({ navigation, route }) => {
     const [ age, setAge ] = useState('')
     const [ info, setInfo ] = useState('')
 
+    if (location === null || location === undefined) {
+        return (
+            <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                <AppButton onPress={askForPermissions}>
+                    <Text>Предоставьте все необходимые разрешения</Text>
+                </AppButton>
+            </View>
+        )
+    }
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                 <ScrollView style={{ flex: 1 }}>
                     <View style={styles.container}>

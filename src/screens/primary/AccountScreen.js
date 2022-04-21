@@ -24,7 +24,7 @@ export const AccountScreen = ({ navigation, route }) => {
     }, [])
 
     const logoutHandler = () => {
-        dispatch(setAuth(''))
+        dispatch(setAuth('', ''))
     }
     return (
         <SafeAreaView style={styles.container}>
