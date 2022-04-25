@@ -1,12 +1,12 @@
 import { useTheme } from '@react-navigation/native'
 import { useEffect, useRef, useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-
 import { SafeAreaView, View, TextInput,
-    StyleSheet, FlatList, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
+    StyleSheet, FlatList, Text, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native'
+
+import { useDispatch, useSelector } from 'react-redux';
 import { sendMessage } from '../../ServerRequests';
 import { DB } from '../../db'
-import { useDispatch, useSelector } from 'react-redux';
 import { CLEAR_NEW_CHATS } from '../../store/types';
 import { THEME } from '../../theme';
 
@@ -21,6 +21,7 @@ export const ChatScreen = ({ navigation, route }) => {
         setMsg(msg.trim())
         if (msg === '') {
             alert('Пустое сообщение!')
+            return
         }
         const result = await sendMessage(token, pet.owner, msg)
         await DB.addSelfMsgText(mail, pet.owner, msg, result)
@@ -32,20 +33,16 @@ export const ChatScreen = ({ navigation, route }) => {
     useEffect(async () => {
         const data = await DB.getMessages(pet.owner)
         setMessages(data)
-        console.log(1)
         dispatch({ type: CLEAR_NEW_CHATS })
     }, [])
 
 
     const dispatch = useDispatch()
 
-    // Keyboard.addListener('keyboardWillShow', () => scrollRef.current.scrollToEnd() )
 
     const newData = useSelector(state => {
         let res = []
         if (state.data.chats.length > 0) {
-            console.log(111)
-            console.log(state.data.chats)
             state.data.chats.forEach(m => {
                 if (m.fromUser === pet.owner || m.toUser === pet.owner) {
                     res.push(m)
@@ -59,14 +56,20 @@ export const ChatScreen = ({ navigation, route }) => {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <SafeAreaView style={styles.container}>
             <ChatHeader pet={pet} onPress={() => navigation.pop()} />
-            <FlatList
+            {[...messages, ...newData].length > 0 ? (<FlatList
                 fadingEdgeLength={0}
                 scrollRef
                 showsVerticalScrollIndicator={false}
                 inverted
-                style={styles.list} data={[...messages, ...newData].reverse()}
+                contentContainerStyle={styles.list}
+                data={[...messages, ...newData].reverse()}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item, index }) => <Message item={item} mail={mail} />} />
+                renderItem={({ item, index }) => <Message item={item} mail={mail} />} />):(
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+
+                        <ActivityIndicator size='large' color={colors.primary} />
+                    </View>
+                )}
             <View style={styles.sendWrapper}>
                 <TextInput value={msg} onChangeText={setMsg} selectionColor={colors.primary} style={styles.input} placeholder='Сообщение...' />
                 <View style={{ width: '8%' }}>
@@ -88,11 +91,12 @@ const ChatHeader = ({pet, onPress}) => {
 }
 
 const Message = ({item, mail}) => {
+    const time = item.dataStatus
     return (
         <View style={{ width: '100%', alignItems: item.fromUser === mail ? 'flex-end' : 'flex-start', marginVertical: 5, paddingHorizontal: 15 }}>
             <View style={[styles.msgWrapper, { backgroundColor: item.fromUser === mail ? '#ddd': '#fff' }]}>
                 <Text style={styles.msgText}>{item.content}</Text>
-                <Text style={styles.msgDate}>{item.dataStatus.substring(12,17)}</Text>
+                <Text style={styles.msgDate}>{time.substring(time.indexOf('T')+1, time.indexOf(':')+3)}</Text>
             </View>
         </View>
     )
@@ -101,6 +105,7 @@ const Message = ({item, mail}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: THEME.WIDTH,
         alignItems: 'center',
         alignContent: 'space-between',
     },
@@ -109,7 +114,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         flexDirection: 'row',
         paddingHorizontal: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20
     },
     input: {
         paddingVertical: 10,
@@ -120,13 +127,12 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.5,
         fontSize: 18,
         marginVertical: 10,
-        backgroundColor: '#456'
     },
     headerContainer: {
         height: 70,
         width: '100%',
         flexDirection: 'row',
-        backgroundColor: '#456',
+        backgroundColor: '#fff',
         alignItems: 'center',
         paddingHorizontal: 15
     },
@@ -143,9 +149,9 @@ const styles = StyleSheet.create({
     },
     msgText: {
         fontSize: 14,
-        fontFamily: 'InterRegular',
-        marginBottom: 10,
-        marginRight: 12,
+        fontFamily: 'OpenSansRegular',
+        marginBottom: 8,
+        marginRight: 16,
         color: '#000'
     },
     msgDate: {

@@ -6,14 +6,14 @@ export const Dialog = ({ token, pet, onPress }) => {
     const { colors } = useTheme()
 
     
-
+    const str = 'Последенее сообщение123123123'
 
     return (
         <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={styles.container}>
             <Image style={styles.img} source={{uri: `https://pancake69.xyz/Selection/GetAnketImage?token=${token}&owner=${pet.owner}&number=1`}} /> 
             <View style={styles.wrapper}>
                 <Text style={styles.title}>{pet.name + ', ' + pet.age}</Text>
-                <Text style={{ fontFamily: 'InterRegular', marginLeft: 30, color: colors.text }}>{'Последенее сообщение'.substring(0,20) + ('Последенее сообщение'.length>20 ? '...' : '')}</Text>
+                <Text style={[ styles.lastMsg, { color: colors.text }]}>{str.substring(0,23) + (str.length>23 ? '...' : '')}</Text>
             </View>
         </TouchableOpacity>
     )
@@ -45,6 +45,10 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 18,
-        fontFamily: 'Inter'
+        fontFamily: 'OpenSansBold'
+    },
+    lastMsg: {
+        fontFamily: 'OpenSansRegular',
+        marginLeft: 30,
     }
 })

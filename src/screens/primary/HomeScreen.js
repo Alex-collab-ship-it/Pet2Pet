@@ -181,6 +181,6 @@ const styles = StyleSheet.create({
     },
     emptyTitle: {
         fontSize: 18,
-        fontFamily: 'Inter'
+        fontFamily: 'OpenSansRegular'
     }
 })

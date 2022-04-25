@@ -173,7 +173,7 @@ const theme = {
   dark: false,
   colors: {
     primary: '#0fad89',
-    background: '#F9F9FF',
+    background: '#EDEDF3', // #f9f9f9
     card: '#FDF5E6',
     text: 'rgb(28, 28, 30)',
     notification: 'rgb(255, 69, 58)',
